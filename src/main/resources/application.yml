@@ -1,3 +1,4 @@
-secret:
-  key:
-    "secret"
+ignite-client:
+  addresses: 10.10.20.187:10800
+  timeout: 10000
+  tcpNoDelay: false

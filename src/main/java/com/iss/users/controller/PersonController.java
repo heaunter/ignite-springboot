@@ -1,5 +1,6 @@
 package com.iss.users.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.iss.users.model.Person;
 import com.iss.users.model.ReqPerson;
 import com.iss.users.model.RespResult;
@@ -7,15 +8,25 @@ import com.iss.users.model.Role;
 import com.iss.users.service.PersonService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.cache.query.FieldsQueryCursor;
+import org.apache.ignite.cache.query.SqlFieldsQuery;
+import org.apache.ignite.client.ClientCacheConfiguration;
+import org.apache.ignite.client.IgniteClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.*;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * @program: users
@@ -27,6 +38,9 @@ public class PersonController {
 
     @Autowired
     private PersonService personService;
+
+    @Autowired
+    private IgniteClient igniteClient;
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public String test(HttpServletRequest request) throws UnknownHostException {
@@ -73,19 +87,20 @@ public class PersonController {
 
     /**
      * User register with whose username and password
+     *
      * @param reqPerson
      * @return Success message
      * @throws ServletException
      */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public RespResult register(@RequestBody() ReqPerson reqPerson) throws ServletException {
+    public RespResult register(@RequestBody() ReqPerson reqPerson) throws ServletException, SQLException, ClassNotFoundException {
         // Check if username and password is null
         if (reqPerson.getUsername() == "" || reqPerson.getUsername() == null
                 || reqPerson.getPassword() == "" || reqPerson.getPassword() == null)
             throw new ServletException("Username or Password invalid!");
 
         // Check if the username is used
-        if(personService.findPersonByUsername(reqPerson.getUsername()) != null)
+        if (personService.findPersonByUsername(reqPerson.getUsername()) != null)
             throw new ServletException("Username is used!");
 
         // Give a default role : MEMBER
@@ -104,31 +119,85 @@ public class PersonController {
 
     /**
      * Check user`s login info, then create a jwt token returned to front end
+     *
      * @param reqPerson
      * @return jwt token
      * @throws ServletException
      */
     @PostMapping
-    public RespResult login(@RequestBody() ReqPerson reqPerson) throws ServletException {
-        // Check if username and password is null
-        if (reqPerson.getUsername() == "" || reqPerson.getUsername() == null
-                || reqPerson.getPassword() == "" || reqPerson.getPassword() == null)
-            throw new ServletException("Please fill in username and password");
+    public RespResult login(@RequestBody() ReqPerson reqPerson) throws ServletException, SQLException {
 
-        // Check if the username is used
-        if(personService.findPersonByUsername(reqPerson.getUsername()) == null
-                || !reqPerson.getPassword().equals(personService.findPersonByUsername(reqPerson.getUsername()).getPassword())){
-            throw new ServletException("Please fill in username and password");
-        }
+//        Connection conn = DriverManager.getConnection("jdbc:ignite:thin://10.10.20.187");
+//
+//
+//        PreparedStatement stmt1 = conn.prepareStatement("CREATE TABLE ROOM_001 ( ID INT(11),  Name CHAR(20),  Password CHAR(20), Person_id int(20),  PRIMARY KEY (ID))");
+//        stmt1.execute();
+//        stmt1.close();
+//
+        long begin = System.currentTimeMillis();
+        System.out.println(begin);
 
-        // Create Twt token
-        String jwtToken = Jwts.builder().setSubject(reqPerson.getUsername()).claim("roles", "member").setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS256, "secretkey").compact();
+//        String SQL = "CREATE TABLE ROOM_344 ( ID INT(11),  Name CHAR(20),  Password CHAR(20), Person_id int(20), PRIMARY KEY (ID));";
 
-        RespResult result = new RespResult();
-        result.setStatuscode("200 OK");
-        result.setMessage("login success");
-        result.setData(jwtToken);
-        return result;
+//        String SQL = "INSERT INTO ROOM_001(ID, name, Password) VALUES(CAST(? as BIGINT), ?, ?)";
+//        SqlFieldsQuery query = new SqlFieldsQuery(SQL);
+//        query.setSchema("20001");
+//        query.setArgs(reqPerson.getId(), reqPerson.getUsername(), reqPerson.getPassword());
+//        FieldsQueryCursor<List<?>> cursor = igniteClient.query(query);
+//        Iterator<List<?>> iterator = cursor.iterator();
+//        while (iterator.hasNext()) {
+//            List<?> next = iterator.next();
+//            System.out.println(11);
+//        }
+
+//        IntStream.range(1, 5001).forEach(value -> {
+//            String SQL = "INSERT INTO ROOM_9292992929229292992929292(ID, name, Password) VALUES(CAST(? as BIGINT), ?, ?)";
+//            SqlFieldsQuery query = new SqlFieldsQuery(SQL);
+//            query.setArgs(reqPerson.getId() + value, reqPerson.getUsername() + value, reqPerson.getPassword() + value);
+//            FieldsQueryCursor<List<?>> cursor = igniteClient.query(query);
+//            boolean b = cursor.iterator().hasNext();
+//        });
+
+
+        ClientCacheConfiguration cfg = new ClientCacheConfiguration();
+        cfg.setBackups(2);
+        cfg.setCacheMode(CacheMode.PARTITIONED);
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        cfg.setName("exam_101");
+        igniteClient.getOrCreateCache(cfg);
+
+        String SQL = "CREATE TABLE ROOM_101 ( ID INT(11),  Name CHAR(20),  Password CHAR(20), Person_id int(20), PRIMARY KEY (ID));";
+        SqlFieldsQuery query = new SqlFieldsQuery(SQL);
+
+        FieldsQueryCursor<List<?>> query1 = igniteClient.query(query);
+        query1.iterator().hasNext();
+
+//        String SQL = "select id,name,password from ROOM_9292992929229292992929292";
+//        SqlFieldsQuery query = new SqlFieldsQuery(SQL);
+//        FieldsQueryCursor<List<?>> cursor = igniteClient.query(query);
+//        Iterator<List<?>> iterator = cursor.iterator();
+//        while (iterator.hasNext()) {
+//            System.out.println(JSONObject.toJSONString(iterator.next()));
+//        }
+//
+//        System.out.println(System.currentTimeMillis() - begin);
+
+//      stmt = conn.prepareStatement("insert INTO Person(_key, name, CountryCode) VALUES(CAST(? as BIGINT), ?, ?)");
+//                stmt = conn.prepareStatement("SELECT * FROM ROOM_24569929292992 WHERE ID = " + 13271);
+//        ResultSet resultSet = stmt.executeQuery();
+//        while (resultSet.next()) {
+//            long id = resultSet.getLong("id");
+//            String name = resultSet.getString("name");
+//            String password = resultSet.getString("password");
+//
+//            System.out.println(id + " " + name + " " + password);
+//        }
+
+
+//        stmt.execute();
+
+//        conn.close();
+
+        return null;
     }
 }

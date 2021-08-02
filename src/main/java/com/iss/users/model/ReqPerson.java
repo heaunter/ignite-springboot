@@ -8,6 +8,9 @@ package com.iss.users.model;
  * @create: 2018-03-01 09:44
  **/
 public class ReqPerson {
+
+    private int id;
+
     /** Request username */
     private String username;
 
@@ -32,6 +35,14 @@ public class ReqPerson {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setPassword(String password) {

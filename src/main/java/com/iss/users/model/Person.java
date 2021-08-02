@@ -24,7 +24,6 @@ public class Person {
     private String username;
 
     /** Person phone(not-indexed) */
-    @QuerySqlField
     private String password;
 
     /** Person roles(not-indexed) */
