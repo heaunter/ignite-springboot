@@ -2,7 +2,11 @@ package com.iss.users.dao;
 
 import com.iss.users.model.Person;
 import org.apache.ignite.springdata22.repository.IgniteRepository;
+import org.apache.ignite.springdata22.repository.config.Query;
 import org.apache.ignite.springdata22.repository.config.RepositoryConfig;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 
 /**
@@ -23,6 +27,11 @@ public interface PersonRepository extends IgniteRepository<Person, Long> {
      * @return The person whose name is the given name.
      */
     Person findByUsername(String name);
+
+    List<Person> findByMobile(String mobile);
+
+    @Query(value = "select * from PERSON where PERSON.mobile like ? and PERSON.username like ?", distributedJoins = true)
+    List<Person> query(String mobile, String name);
 
 
 }

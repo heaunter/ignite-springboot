@@ -3,6 +3,7 @@ package com.iss.users.model;
 /**
  * Used for getting request for login and register
  * Because the request only has username and password info
+ *
  * @program: users
  * @author: 李泰郎
  * @create: 2018-03-01 09:44
@@ -11,10 +12,16 @@ public class ReqPerson {
 
     private int id;
 
-    /** Request username */
+    /**
+     * Request username
+     */
     private String username;
 
-    /** Request password */
+    private String mobile;
+
+    /**
+     * Request password
+     */
     private String password;
 
     public ReqPerson() {
@@ -23,6 +30,20 @@ public class ReqPerson {
     public ReqPerson(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public ReqPerson(String username, String mobile, String password) {
+        this.username = username;
+        this.mobile = mobile;
+        this.password = password;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public String getUsername() {

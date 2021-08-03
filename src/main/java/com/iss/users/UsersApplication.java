@@ -63,6 +63,22 @@ import java.util.List;
  * Here are the apis:
  * /person?name=XXX&phone=XXX	get,	store the person in Ignite and return a json of the person
  * /persons?name=xxx 			get,	return a json of the person
+ * <p>
+ * It's a test project for deploying Ignite on SpringBoot
+ * Function:
+ * 1.Start an ignite node
+ * 2.provide RESTful api to create or retrieve information in Ignite Cache
+ * Here are the apis:
+ * /person?name=XXX&phone=XXX	get,	store the person in Ignite and return a json of the person
+ * /persons?name=xxx 			get,	return a json of the person
+ * <p>
+ * It's a test project for deploying Ignite on SpringBoot
+ * Function:
+ * 1.Start an ignite node
+ * 2.provide RESTful api to create or retrieve information in Ignite Cache
+ * Here are the apis:
+ * /person?name=XXX&phone=XXX	get,	store the person in Ignite and return a json of the person
+ * /persons?name=xxx 			get,	return a json of the person
  */
 
 /**
@@ -79,7 +95,7 @@ import java.util.List;
  * 项目启动入口，配置@EnableIgniteRepositories注解以支持ignite的@RepositoryConfig
  */
 @SpringBootApplication
-//@EnableIgniteRepositories
+@EnableIgniteRepositories
 public class UsersApplication implements CommandLineRunner {
 
     @Autowired
@@ -95,8 +111,8 @@ public class UsersApplication implements CommandLineRunner {
         List<Role> roles = new ArrayList<>();
         roles.add(Role.MEMBER);
 
-//        personService.save(new Person("test1", "test11", roles));
-//        personService.save(new Person("test2", "test22", roles));
-//        personService.save(new Person("test3", "test33", roles));
+        personService.save(new Person("name1", "pass11", "18198765432", roles));
+        personService.save(new Person("name1", "pass22", "18198765431", roles));
+        personService.save(new Person("name1", "pass33", "18198765432", roles));
     }
 }

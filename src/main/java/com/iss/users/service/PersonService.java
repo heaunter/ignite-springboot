@@ -27,4 +27,6 @@ public interface PersonService {
      * @return The person found in Ignite DB
      */
     Person findPersonByUsername(String name);
+
+    List<Person> listByMobile(String mobile);
 }

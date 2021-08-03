@@ -5,6 +5,7 @@ import com.iss.users.model.Role;
 import com.iss.users.service.PersonService;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.ClientConfiguration;
@@ -40,48 +41,43 @@ public class IgniteCfg {
      *
      * @return Ignite
      */
-//    @Bean
+    @Bean
     public Ignite igniteInstance() {
         // 配置一个节点的Configuration
 
         IgniteConfiguration cfg = new IgniteConfiguration();
-        cfg.setClientMode(false);
+        cfg.setClientMode(true);
         cfg.setMetricsLogFrequency(60000);
 
-        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
-
-        TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
-        tcpDiscoverySpi.setIpFinder(ipFinder);
-        cfg.setDiscoverySpi(tcpDiscoverySpi);
+//        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+//        ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
+//
+//        TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
+//        tcpDiscoverySpi.setIpFinder(ipFinder);
+//        cfg.setDiscoverySpi(tcpDiscoverySpi);
 
 
         // 设置该节点名称
-        cfg.setIgniteInstanceName("springDataNode");
+        cfg.setIgniteInstanceName("IDEA");
 
         // 启用Peer类加载器
         cfg.setPeerClassLoadingEnabled(false);
 
-        // 创建一个Cache的配置，名称为PersonCache
-        CacheConfiguration ccfg = new CacheConfiguration("PersonCache");
-
-        // 设置这个Cache的键值对模型
-        ccfg.setIndexedTypes(Long.class, Person.class);
-
         // 把这个Cache放入springDataNode这个Node中
-        cfg.setCacheConfiguration(ccfg);
+        cfg.setCacheConfiguration(cacheConfigurations());
 
         // 启动这个节点
-        Ignite start = Ignition.start(cfg);
-        return start;
+        return Ignition.start(cfg);
     }
 
-//    @Bean
-    public IgniteClient igniteClient() {
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setAddresses("127.0.0.1:10800");
-        IgniteClient igniteClient = Ignition.startClient(clientConfiguration);
-        return igniteClient;
-    }
+    private CacheConfiguration[] cacheConfigurations() {
+        // 创建一个Cache的配置，名称为PersonCache
+        CacheConfiguration personCache = new CacheConfiguration("PersonCache");
+        // 设置这个Cache的键值对模型
+        personCache.setIndexedTypes(Long.class, Person.class);
+        personCache.setBackups(2);
+        personCache.setCacheMode(CacheMode.PARTITIONED);
 
+        return new CacheConfiguration[]{personCache};
+    }
 }

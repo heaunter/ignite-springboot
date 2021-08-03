@@ -15,18 +15,30 @@ public class Person {
 
     private static final AtomicLong ID_GEN = new AtomicLong();
 
-    /** Person ID (indexed) */
+    /**
+     * Person ID (indexed)
+     */
     @QuerySqlField(index = true)
     private long id;
 
-    /** Person name(indexed) */
+    /**
+     * Person name(indexed)
+     */
     @QuerySqlField(index = true)
     private String username;
 
-    /** Person phone(not-indexed) */
+
+    @QuerySqlField(index = true)
+    private String mobile;
+
+    /**
+     * Person phone(not-indexed)
+     */
     private String password;
 
-    /** Person roles(not-indexed) */
+    /**
+     * Person roles(not-indexed)
+     */
     @QuerySqlField
     private List<Role> roles;
 
@@ -40,9 +52,10 @@ public class Person {
         this.roles = roles;
     }
 
-    public Person(String name, String password, List<Role> roles) {
+    public Person(String name, String password, String mobile,List<Role> roles) {
         this.id = ID_GEN.incrementAndGet();
         this.username = name;
+        this.mobile = mobile;
         this.password = password;
         this.roles = roles;
     }
@@ -75,15 +88,26 @@ public class Person {
         return roles;
     }
 
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 
     @Override
-    public String toString(){
-        return "Person [id=" + id +
-                ", username=" + username +
-                ", password=" + password +
-                ", roles=" + roles.toString() + "]";
+    public String toString() {
+        return "Person{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }
